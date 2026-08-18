@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+.expo-shared/
+dist/
+dist-android-validate/
+coverage/
+android/
+ios/
+*.keystore
+*.jks
+.env
+.env.*
+!.env.example
+npm-debug.log*
+pnpm-debug.log*

@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Melato",
+    "slug": "melato-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "melato",
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "android": {
+      "package": "ca.melato.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#080808"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "ios": {
+      "bundleIdentifier": "ca.melato.app",
+      "supportsTablet": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#080808",
+          "imageWidth": 180
+        }
+      ],
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": ""
+      }
+    }
+  }
+}
