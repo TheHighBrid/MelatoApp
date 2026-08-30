@@ -70,16 +70,22 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Compile standalone Android QA APK
+      - name: Generate native Android project
         env:
           CI: '1'
           EXPO_NO_GIT_STATUS: '1'
+        run: pnpm exec expo prebuild --platform android --no-install
+
+      - name: Compile Android release APK
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Collect Android QA APK
         run: |
-          pnpm exec expo run:android --variant release --device generic --no-bundler
-          APK_PATH="$(find android/app/build/outputs/apk -type f -name '*.apk' | head -n 1)"
+          APK_PATH="$(find android/app/build/outputs/apk/release -type f -name '*.apk' | head -n 1)"
           if [ -z "$APK_PATH" ]; then
-            echo "No APK was produced by the Android release build."
-            find android/app/build/outputs -maxdepth 5 -type f -print || true
+            echo "No release APK was produced by Gradle."
+            find android/app/build/outputs -maxdepth 6 -type f -print || true
             exit 1
           fi
           cp "$APK_PATH" ./melato-android-qa.apk
