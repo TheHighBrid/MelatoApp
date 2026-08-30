@@ -4,9 +4,10 @@ import { AppHeader } from '@/src/components/AppHeader';
 import { colors, layout, spacing, typography } from '@/src/design/tokens';
 
 const supportItems = [
-  { label: 'Sign in', action: () => undefined },
+  { label: 'Sign in', action: () => Linking.openURL('https://melato.ca/account') },
   { label: 'Order help', action: () => Linking.openURL('mailto:support@melato.ca') },
-  { label: 'Shipping & returns', action: () => Linking.openURL('https://melato.ca/policies/shipping-policy') },
+  { label: 'Shipping & returns', action: () => Linking.openURL('https://melato.ca/pages/shipping-returns') },
+  { label: 'Contact Melato', action: () => Linking.openURL('https://melato.ca/pages/contact') },
   { label: 'Privacy', action: () => Linking.openURL('https://melato.ca/policies/privacy-policy') },
 ] as const;
 
@@ -18,14 +19,14 @@ export default function MeScreen() {
         <Text style={styles.kicker}>Customer space</Text>
         <Text accessibilityRole="header" style={styles.title}>YOUR MELATO.</Text>
         <Text style={styles.body}>
-          Customer account sign-in and order history are prepared for Shopify Customer Account API authentication.
+          Sign in securely through Melato, get order support, and reach the current delivery, returns, contact, and privacy information.
         </Text>
         <View style={styles.list}>
           {supportItems.map((item) => (
             <Pressable
               key={item.label}
               accessibilityRole="button"
-              onPress={item.action}
+              onPress={() => void item.action()}
               style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
             >
               <Text style={styles.rowLabel}>{item.label}</Text>
