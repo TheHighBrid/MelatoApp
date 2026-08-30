@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import { catalogService } from '@/src/commerce/storefront/services';
 
@@ -7,6 +7,18 @@ export function useCollection(handle: string) {
     enabled: Boolean(handle),
     queryFn: () => catalogService.getCollection(handle),
     queryKey: ['collection', handle],
+  });
+}
+
+export function useInfiniteCollection(handle: string) {
+  return useInfiniteQuery({
+    enabled: Boolean(handle),
+    getNextPageParam: (lastPage) => (
+      lastPage.pageInfo.hasNextPage ? lastPage.pageInfo.endCursor ?? undefined : undefined
+    ),
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) => catalogService.getCollection(handle, pageParam),
+    queryKey: ['collection-infinite', handle],
   });
 }
 
