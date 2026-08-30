@@ -1,8 +1,9 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { type InfiniteData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import { catalogService } from '@/src/commerce/storefront/services';
 
 type CollectionPage = Awaited<ReturnType<typeof catalogService.getCollection>>;
+type CollectionQueryKey = readonly ['collection-infinite', string];
 
 export function useCollection(handle: string) {
   return useQuery({
@@ -13,15 +14,21 @@ export function useCollection(handle: string) {
 }
 
 export function useInfiniteCollection(handle: string) {
-  return useInfiniteQuery<CollectionPage, Error, CollectionPage[], readonly ['collection-infinite', string], string | null>({
+  return useInfiniteQuery<
+    CollectionPage,
+    Error,
+    InfiniteData<CollectionPage, string | null>,
+    CollectionQueryKey,
+    string | null
+  >({
     enabled: Boolean(handle),
-    getNextPageParam: (lastPage) => (
-      lastPage.pageInfo.hasNextPage ? lastPage.pageInfo.endCursor : undefined
-    ),
+    getNextPageParam: (lastPage) => {
+      const cursor = lastPage.pageInfo.endCursor;
+      return lastPage.pageInfo.hasNextPage && cursor ? cursor : undefined;
+    },
     initialPageParam: null,
     queryFn: ({ pageParam }) => catalogService.getCollection(handle, pageParam),
     queryKey: ['collection-infinite', handle] as const,
-    select: (data) => data.pages,
   });
 }
 
