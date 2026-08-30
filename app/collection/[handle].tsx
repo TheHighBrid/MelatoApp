@@ -1,15 +1,15 @@
 import { useLocalSearchParams, router } from 'expo-router';
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import { AppHeader } from '@/src/components/AppHeader';
 import { ProductCard } from '@/src/components/ProductCard';
 import { ScreenState } from '@/src/components/ScreenState';
 import { colors, layout, spacing, typography } from '@/src/design/tokens';
-import { useCollection } from '@/src/hooks/useCommerce';
+import { useInfiniteCollection } from '@/src/hooks/useCommerce';
 
 export default function CollectionScreen() {
   const { handle } = useLocalSearchParams<{ handle: string }>();
-  const collection = useCollection(handle ?? '');
+  const collection = useInfiniteCollection(handle ?? '');
 
   if (collection.isLoading) {
     return (
@@ -35,15 +35,18 @@ export default function CollectionScreen() {
     );
   }
 
-  const data = collection.data;
-  if (!data || data.products.length === 0) {
+  const pages = collection.data?.pages ?? [];
+  const collectionMeta = pages[0]?.collection;
+  const products = pages.flatMap((page) => page.products);
+
+  if (!collectionMeta || products.length === 0) {
     return (
       <View style={styles.screen}>
         <AppHeader title="SHOP" />
         <ScreenState
-          actionLabel="View the index"
+          actionLabel="View new arrivals"
           body="There are no pieces in this collection at the moment."
-          onAction={() => router.replace({ pathname: '/collection/[handle]', params: { handle: 'all' } })}
+          onAction={() => router.replace({ pathname: '/collection/[handle]', params: { handle: 'new-arrivals' } })}
           title="NO PIECES FOUND"
           variant="empty"
         />
@@ -51,24 +54,37 @@ export default function CollectionScreen() {
     );
   }
 
+  const loadedCountLabel = collection.hasNextPage ? `${products.length}+ pieces` : `${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`;
+
   return (
     <View style={styles.screen}>
       <AppHeader title="SHOP" />
       <FlatList
+        ListFooterComponent={collection.isFetchingNextPage ? (
+          <View style={styles.footerLoader}>
+            <ActivityIndicator color={colors.bone} />
+          </View>
+        ) : null}
         ListHeaderComponent={
           <View style={styles.header}>
             <Text style={styles.eyebrow}>Collection</Text>
-            <Text accessibilityRole="header" style={styles.title}>{data.collection.title}</Text>
-            {data.collection.description ? <Text style={styles.description}>{data.collection.description}</Text> : null}
-            <Text style={styles.count}>{data.products.length} {data.products.length === 1 ? 'piece' : 'pieces'}</Text>
+            <Text accessibilityRole="header" style={styles.title}>{collectionMeta.title}</Text>
+            {collectionMeta.description ? <Text style={styles.description}>{collectionMeta.description}</Text> : null}
+            <Text style={styles.count}>{loadedCountLabel}</Text>
           </View>
         }
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.content}
-        data={data.products}
+        data={products}
         keyExtractor={(product) => product.id}
         numColumns={2}
-        refreshControl={<RefreshControl onRefresh={collection.refetch} refreshing={collection.isRefetching} tintColor={colors.bone} />}
+        onEndReached={() => {
+          if (collection.hasNextPage && !collection.isFetchingNextPage) {
+            void collection.fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.6}
+        refreshControl={<RefreshControl onRefresh={collection.refetch} refreshing={collection.isRefetching && !collection.isFetchingNextPage} tintColor={colors.bone} />}
         renderItem={({ item }) => <ProductCard product={item} />}
         showsVerticalScrollIndicator={false}
       />
@@ -91,4 +107,5 @@ const styles = StyleSheet.create({
   description: { color: colors.muted, fontFamily: typography.ui.family, fontSize: 15, lineHeight: 22, maxWidth: 330 },
   count: { color: colors.muted, fontFamily: typography.meta.family, fontSize: 10, letterSpacing: 1.2, marginTop: spacing.sm, textTransform: 'uppercase' },
   row: { gap: spacing.sm, paddingHorizontal: layout.gutterCompact },
+  footerLoader: { alignItems: 'center', justifyContent: 'center', minHeight: 72 },
 });
