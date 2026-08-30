@@ -37,7 +37,7 @@ jobs:
         run: pnpm test
 
       - name: Expo Doctor
-        run: pnpm exec expo-doctor
+        run: pnpm dlx expo-doctor
 
       - name: Export Android bundle
         run: pnpm exec expo export --platform android --output-dir dist-android-validate
