@@ -87,7 +87,7 @@ export default function LookbookScreen() {
               cachePolicy="memory-disk"
               contentFit="cover"
               source={{ uri: frame.imageUrl }}
-              style={StyleSheet.absoluteFillObject}
+              style={StyleSheet.absoluteFill}
               transition={220}
             />
             <View pointerEvents="none" style={styles.overlay} />
