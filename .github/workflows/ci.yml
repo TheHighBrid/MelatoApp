@@ -35,3 +35,9 @@ jobs:
 
       - name: Unit tests
         run: pnpm test
+
+      - name: Expo Doctor
+        run: pnpm exec expo-doctor
+
+      - name: Export Android bundle
+        run: pnpm exec expo export --platform android --output-dir dist-android-validate
