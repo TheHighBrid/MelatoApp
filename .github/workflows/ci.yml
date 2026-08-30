@@ -62,7 +62,7 @@ jobs:
           cache: pnpm
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -74,7 +74,16 @@ jobs:
         env:
           CI: '1'
           EXPO_NO_GIT_STATUS: '1'
-        run: pnpm exec expo run:android --variant release --device generic --no-bundler --output ./melato-android-qa.apk
+        run: |
+          pnpm exec expo run:android --variant release --device generic --no-bundler
+          APK_PATH="$(find android/app/build/outputs/apk -type f -name '*.apk' | head -n 1)"
+          if [ -z "$APK_PATH" ]; then
+            echo "No APK was produced by the Android release build."
+            find android/app/build/outputs -maxdepth 5 -type f -print || true
+            exit 1
+          fi
+          cp "$APK_PATH" ./melato-android-qa.apk
+          ls -lh ./melato-android-qa.apk
 
       - name: Upload Android QA APK
         uses: actions/upload-artifact@v4
