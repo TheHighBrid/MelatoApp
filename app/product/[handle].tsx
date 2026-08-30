@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { AppButton } from '@/src/components/AppButton';
 import { AppHeader } from '@/src/components/AppHeader';
@@ -13,6 +13,7 @@ import { formatMoney } from '@/src/lib/money';
 
 export default function ProductDetailScreen() {
   const { handle } = useLocalSearchParams<{ handle: string }>();
+  const { width: viewportWidth } = useWindowDimensions();
   const productQuery = useProduct(handle ?? '');
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const { addItem } = useCartMutations();
@@ -60,10 +61,10 @@ export default function ProductDetailScreen() {
               cachePolicy="memory-disk"
               contentFit="cover"
               source={{ uri: image.url }}
-              style={styles.image}
+              style={[styles.image, { width: viewportWidth }]}
               transition={180}
             />
-          )) : <View accessibilityLabel={`${product.title} image unavailable`} style={styles.imagePlaceholder} />}
+          )) : <View accessibilityLabel={`${product.title} image unavailable`} style={[styles.imagePlaceholder, { width: viewportWidth }]} />}
         </ScrollView>
 
         <View style={styles.detail}>
@@ -74,7 +75,7 @@ export default function ProductDetailScreen() {
 
           {product.variants.length > 1 ? (
             <View style={styles.variantSection}>
-              <Text style={styles.optionLabel}>Select a size</Text>
+              <Text style={styles.optionLabel}>Select an option</Text>
               <View style={styles.variantGrid}>
                 {product.variants.map((variant) => {
                   const selected = variant.id === selectedVariant?.id;
@@ -127,8 +128,8 @@ const styles = StyleSheet.create({
   screen: { backgroundColor: colors.ink, flex: 1 },
   content: { paddingBottom: spacing.hero },
   gallery: { aspectRatio: 0.76, backgroundColor: colors.graphite },
-  image: { height: '100%', width: 390 },
-  imagePlaceholder: { backgroundColor: colors.graphite, height: '100%', width: 390 },
+  image: { height: '100%' },
+  imagePlaceholder: { backgroundColor: colors.graphite, height: '100%' },
   detail: { gap: spacing.md, padding: layout.gutter },
   eyebrow: { color: colors.accent, fontFamily: typography.meta.family, fontSize: 10, letterSpacing: typography.meta.letterSpacing, textTransform: 'uppercase' },
   title: { color: colors.bone, fontFamily: typography.display.family, fontSize: 46, letterSpacing: typography.display.letterSpacing, lineHeight: 44 },
