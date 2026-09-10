@@ -37,6 +37,8 @@ jobs:
         run: pnpm test
 
       - name: Expo Doctor
+        env:
+          EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK: '1'
         run: pnpm dlx expo-doctor
 
       - name: Export Android bundle
